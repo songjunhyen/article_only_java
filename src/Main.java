@@ -1,136 +1,153 @@
 import java.util.Scanner;
 import java.time.*;
-import java.util.HashMap;
 import java.util.ArrayList;
 
 public class Main {
 	public static void main(String[] args) {
 		System.out.println("== 프로그램 시작 ==");
-		// 스캐너 생성
+
 		Scanner sc = new Scanner(System.in);
 		LocalDate currentDate = LocalDate.now();
 
-		HashMap<Integer, ArrayList<String>> articles = new HashMap<>();
+		ArrayList<Article> articles = new ArrayList<>();
+		int lastArticleId = 1;
+		int viewcount = 0;
 
-		// 무한 루프 생성
+		System.out.println("테스트 데이터 생성");
+		for (int i = 1; i < 4; i++) {
+			Article article = new Article(lastArticleId, "제목" + i, "내용" + i, currentDate.toString(), i * 10);
+			articles.add(article);
+			lastArticleId++;
+		}
+
 		while (true) {
-			System.out.println("명령어 목록 : 등록, 목록, 조회, 종료 ");
-
-			// 문자열 출력
+			System.out.println("명령어 목록 : 등록, 목록, 조회, 수정, 삭제, 종료 ");
 			System.out.print("명령어) ");
-			// 문자열 타입 cmd 변수에 입력받은 값을 저장
-			String cmd = sc.nextLine();
-			// cmd 출력
-			System.out.println(cmd);
+			String cmd = sc.nextLine().trim();
 
-			// 무한 루프 종료 조건을 생성
-			// 조건문 사용
-			if (cmd.equals("종료")) { // cmd 가 "종료"와 일치하는지 확인
-				sc.close(); // 스캐너 닫기. 안닫으면 계속 리소스 사용됨
-				break; // 반복문 종료
-			} else if (cmd.equals("목록")) {
+			try {
+				if (cmd.equals("종료")) {
+					sc.close();
+					break;
+				} else if (cmd.equals("목록")) {
+					if (articles.isEmpty()) {
+						System.out.println("존재하는 게시글이 없습니다");
+					} else {
+						System.out.println(" 번호 |  제목  | 조회수 | 등록일자   ");
+						for (int i = articles.size() - 1; i >= 0; i--) {
+							Article item = articles.get(i);
+							System.out.printf(" %-5d| %-6.6s |  %-4d  | %8s\n", item.id, item.title, item.viewcount,
+									item.date);
+							// 여기서 -는 좌측정렬 -없으면 우측정렬. 다음 숫자는 최소 할당칸. 소수점 숫자는 출력될 값의 길이 제한
+						}
+					}
+				} else if (cmd.equals("등록")) {
+					System.out.print("제목 : ");
+					String title = sc.nextLine().trim();
+					System.out.print("내용 : ");
+					String body = sc.nextLine().trim();
+					String date = currentDate.toString();
 
-				if (articles.isEmpty()) {
-					System.out.println("게시글이 없습니다.");
+					Article article = new Article(lastArticleId, title, body, date, viewcount);
+					articles.add(article);
+					System.out.println(lastArticleId + "번 글이 생성되었습니다");
+					lastArticleId++;
+				} else if (cmd.equals("조회")) {
+					System.out.print("조회할 게시글의 번호 : ");
+					String idStr = sc.nextLine().trim();
+					try {
+						int id = Integer.parseInt(idStr);
+						boolean found = false;
+						for (Article article : articles) {
+							if (article.id == id) {
+								found = true;
+								article.incviewcount();
+								System.out.println("번호: " + article.id);
+								System.out.println("제목: " + article.title);
+								System.out.println("내용: " + article.body);
+								System.out.println("날짜: " + article.date);
+								System.out.println("조회수: " + article.viewcount);
+								break;
+							}
+						}
+						if (!found) {
+							System.out.println("해당 번호의 게시글이 없습니다.");
+						}
+					} catch (NumberFormatException e) {
+						System.out.println("올바른 번호를 입력하세요.");
+					}
+				} else if (cmd.equals("수정")) {
+					System.out.print("수정할 게시글의 번호를 입력하세요: ");
+					String idStr = sc.nextLine().trim();
+					try {
+						int id = Integer.parseInt(idStr);
+						boolean found = false;
+						for (Article article : articles) {
+							if (article.id == id) {
+								found = true;
+								System.out.print("수정할 제목: ");
+								article.title = sc.nextLine().trim();
+								System.out.print("수정할 내용: ");
+								article.body = sc.nextLine().trim();
+								article.date = currentDate.toString();
+								System.out.println(id + "번 게시글이 수정되었습니다.");
+								break;
+							}
+						}
+						if (!found) {
+							System.out.println("해당 번호의 게시글이 없습니다.");
+						}
+					} catch (NumberFormatException e) {
+						System.out.println("올바른 번호를 입력하세요.");
+					}
+				} else if (cmd.equals("삭제")) {
+					System.out.print("삭제할 게시글의 번호를 입력하세요: ");
+					String idStr = sc.nextLine().trim();
+					try {
+						int id = Integer.parseInt(idStr);
+						boolean found = false;
+						for (Article article : articles) {
+							if (article.id == id) {
+								found = true;
+								articles.remove(article);
+								System.out.println(id + "번 게시글이 삭제되었습니다.");
+								break;
+							}
+						}
+						if (!found) {
+							System.out.println("해당 번호의 게시글이 없습니다.");
+						}
+					} catch (NumberFormatException e) {
+						System.out.println("올바른 번호를 입력하세요.");
+					}
 				} else {
-					System.out.println("번호 | 제목 | 등록일자");
-					int count = articles.size();
-					for (int i = count; i > 0; i--) {
-						ArrayList<String> item = articles.get(i);
-						if (item != null) { // null 체크
-							System.out.println(i + "  |  " + item.get(0) + "  |  " + item.get(2));
-						}
-					}
+					System.out.println("존재하지 않는 명령어입니다.");
 				}
-			} else if (cmd.equals("등록"))
-
-			{
-				System.out.printf("제목 : ");
-				String name = sc.nextLine().trim();
-				System.out.printf("내용 : ");
-				String text = sc.nextLine().trim();
-
-				// nextLine().trim()을 사용하면 사용자 입력에서 앞뒤 공백을 제거
-
-				ArrayList<String> item = new ArrayList<>();
-				item.add(name);
-				item.add(text);
-				item.add(currentDate.toString());
-				articles.put(articles.size() + 1, item);
-
-				System.out.println(articles.size() + "번 글이 생성되었습니다.");
-			} else if (cmd.equals("조회")) {
-				System.out.print("조회할 게시글의 번호 : ");
-				String numberStr = sc.nextLine().trim();
-				try {
-					int number = Integer.parseInt(numberStr);
-					if (articles.isEmpty()) {
-						System.out.println("게시글이 없습니다.");
-					} else if (articles.containsKey(number)) {
-						ArrayList<String> items = articles.get(number);
-						System.out.printf("번호 : %d\n날짜 : %s\n제목 : %s\n내용: %s\n", number, items.get(2), items.get(0),
-								items.get(1));
-					} else {
-						System.out.printf("%d번 게시글이 존재하지 않습니다.\n", number);
-					}
-				} catch (NumberFormatException e) {
-					System.out.println("올바른 번호를 입력하세요.");
-				}
-			} else if (cmd.equals("수정")) {
-				String numberStr = sc.nextLine().trim();
-				int number = Integer.parseInt(numberStr);
-				try {
-					if (articles.isEmpty()) {
-						System.out.println("게시글이 없습니다.");
-					} else if (articles.containsKey(number)) {
-						ArrayList<String> items = articles.get(number);
-						System.out.printf("수정할 제목 : %s => ", items.get(0));
-						String new_name = sc.nextLine().trim();
-						System.out.printf("수정할 내용 : %s => ", items.get(1));
-						String new_text = sc.nextLine().trim();
-						items.set(0, new_name);
-						items.set(1, new_text);
-						items.set(2, currentDate.toString());
-						articles.put(number, items);
-						System.out.printf("%d번 게시글이 수정되었습니다.\n", number);
-
-					} else {
-						System.out.printf("%d번 게시글이 존재하지 않습니다.\n", number);
-					}
-				} catch (NumberFormatException e) {
-
-				}
-			} else if (cmd.equals("삭제")) {
-				String numberStr = sc.nextLine().trim();
-				int number = Integer.parseInt(numberStr);
-				try {
-					if (articles.isEmpty()) {
-						System.out.println("게시글이 없습니다.");
-					} else if (articles.containsKey(number)) {
-						ArrayList<String> items = articles.get(number);
-						System.out.printf("게시글 삭제 - \n번호 : %d\n날짜 : %s\n제목 : %s\n", number, items.get(2), items.get(0));
-						articles.remove(number);
-						System.out.printf("%d번 게시글이 삭제되었습니다.\n", number);
-						// 삭제한 번호보다 큰 번호들을 하나씩 앞으로 이동
-						for (int i = number + 1; i <= articles.size() + 1; i++) {
-							ArrayList<String> item = articles.get(i);
-							articles.put(i - 1, item);
-							articles.remove(i);
-						}
-					} else {
-						System.out.printf("%d번 게시글이 존재하지 않습니다.\n", number);
-					}
-				} catch (NumberFormatException e) {
-
-				}
-			} else if (cmd.isEmpty()) {
-				System.out.println("아무것도 입력하지 않았습니다.");
-			} else {
-				System.out.println("존재하지 않는 명령어입니다.");
+			} catch (Exception e) {
+				System.out.println("오류가 발생하였습니다: " + e.getMessage());
 			}
-
 		}
 
 		System.out.println("== 프로그램 종료 ==");
+	}
+}
+
+class Article {
+	int id;
+	String title;
+	String body;
+	String date;
+	int viewcount;
+
+	Article(int id, String title, String body, String date, int viewcount) {
+		this.id = id;
+		this.title = title;
+		this.body = body;
+		this.date = date;
+		this.viewcount = viewcount;
+	}
+
+	void incviewcount() {
+		viewcount++;
 	}
 }

@@ -26,7 +26,7 @@ public class User {
 	public int getNum() {
 		return num;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -43,6 +43,7 @@ public class User {
 	public void setNum(int num) {
 		this.num = num;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}

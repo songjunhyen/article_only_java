@@ -1,22 +1,73 @@
 package com.article.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import com.article.dto.Article;
 import com.article.dto.User;
 
 public class Usermanager {
 	private String currentUserId;
-
-	public void setCurrentUserId(String userId) {
-		this.currentUserId = userId;
+    private Scanner sc;
+    private ArrayList<User> users;
+	private int num;
+	private int lastArticleId;
+	private Controller controller;
+	
+	public Usermanager(Scanner sc, ArrayList<User> users, int num, int lastArticleId) {
+	    this.sc = sc;
+	    this.users = users;
+	    this.num = num;
+	    this.lastArticleId = lastArticleId;
+	    this.controller = new Controller(sc, lastArticleId);
 	}
+	
+    public void setCurrentUserId(String userId) {
+        this.currentUserId = userId;
+    }
 
-	public String getCurrentUserId() {
-		return this.currentUserId;
+    public String getCurrentUserId() {
+        return this.currentUserId;
+    }
+    
+
+    public void doing(String cmd, ArrayList<Article> articles, LocalDate currentDate, int viewcount, int lastArticleId2) {
+		if (cmd.equals("1") || cmd.equals("로그인")) {
+			signin(sc, users);
+			while (true) {
+				System.out.println("명령어 목록 :\n 등록, 목록, 조회, 검색, 수정, 삭제 \n 정보수정, 탈퇴, 로그아웃 ");
+				System.out.print("명령어) ");
+				String cmd2 = sc.nextLine().trim();
+				try {
+					 if (!signcheck()) { // 로그인 확인
+						break; // 로그인이 안되어있으면 다시 로그인 화면으로 돌아감
+					} else if (cmd2.equals("정보수정")) {
+						updateuser(sc, users);
+					} else if (cmd2.equals("탈퇴")) {
+						deleteuser(sc, users);
+						signout();
+						break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
+					} else if (cmd2.equals("로그아웃")) {
+						signout();
+						break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
+					} else {
+						controller.doing(cmd2, articles, currentDate, viewcount);
+					}
+				} catch (Exception e) {
+					System.out.println("오류가 발생하였습니다: " + e.getMessage());
+				}
+			}
+		} else if (cmd.equals("2") || cmd.equals("회원가입")) {
+			signup(sc, users, num);
+		} else if (cmd.equals("3") || cmd.equals("종료")) {
+			System.out.println("프로그램을 종료합니다.");
+			System.exit(0);
+		}	
 	}
+    
 
-	public void signin(Scanner sc, ArrayList<User> users) {
+	private void signin(Scanner sc, ArrayList<User> users) {
 		System.out.print("아이디 : ");
 		String id = sc.nextLine().trim();
 		System.out.print("비밀번호 : ");
@@ -30,13 +81,13 @@ public class Usermanager {
 			}
 		}
 		if (check) {
-			System.out.println(id+"님 로그인 되었습니다.");
+			System.out.println(id + "님 로그인 되었습니다.");
 		} else {
 			System.out.println("등록된 회원이 없거나 아이디 또는 비밀번호가 잘못되었습니다.");
 		}
 	}
 
-	public void signup(Scanner sc, ArrayList<User> users, int num) {
+	private void signup(Scanner sc, ArrayList<User> users, int num) {
 		while (true) {
 			System.out.print("생성할 유저 아이디 : ");
 			String id = sc.nextLine().trim();
@@ -64,12 +115,13 @@ public class Usermanager {
 			User user = new User(id, password, num, name);
 			users.add(user);
 			System.out.println(num + "번 회원님 환영합니다.");
-			num++;
+			this.num++;
 			break; // 아이디가 중복되지 않은 경우에만 회원가입 진행
 		}
 	}
 
-	public void updateuser(Scanner sc, ArrayList<User> users) {
+
+	private void updateuser(Scanner sc, ArrayList<User> users) {
 		signcheck();
 		String inputPassword = checkPassword(sc, users);
 		if (!inputPassword.equals("")) {
@@ -89,7 +141,7 @@ public class Usermanager {
 		}
 	}
 
-	public void deleteuser(Scanner sc, ArrayList<User> users) {
+	private void deleteuser(Scanner sc, ArrayList<User> users) {
 		signcheck();
 		String inputPassword = checkPassword(sc, users);
 		if (!inputPassword.equals("")) {
@@ -114,7 +166,7 @@ public class Usermanager {
 		}
 	}
 
-	public void signout() {
+	private void signout() {
 		currentUserId = null; // 사용자 정보 초기화
 		System.out.println("로그아웃 되었습니다.");
 		return;
@@ -159,11 +211,12 @@ public class Usermanager {
 	}
 
 	// 로그인 확인
-	public boolean signcheck() {
+	private boolean signcheck() {
 		if (currentUserId == null) {
 			System.out.println("로그인이 필요합니다.");
 			return false;
 		}
 		return true;
 	}
+
 }

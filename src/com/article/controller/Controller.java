@@ -7,7 +7,48 @@ import java.time.LocalDate;
 
 public class Controller {
 
-	public void index(ArrayList<Article> articles) {
+	private Scanner sc;
+	private int lastArticleId;
+
+	public Controller(Scanner sc, int lastArticleId) {
+		this.sc = new Scanner(System.in);
+		this.lastArticleId = lastArticleId;
+	}
+
+	public void setLastArticleId(int lastArticleId) {
+		this.lastArticleId = lastArticleId;
+	}
+
+	public int getLastArticleId() {
+		return this.lastArticleId;
+	}
+
+	public void doing(String cmd2, ArrayList<Article> articles, LocalDate currentDate, int viewcount) {
+		switch (cmd2) {
+		case "목록":
+			index(articles);
+			break;
+		case "등록":
+			write(articles, currentDate, viewcount);
+			break;
+		case "조회":
+			search_num(articles);
+			break;
+		case "수정":
+			change(articles, currentDate);
+			break;
+		case "삭제":
+			delete(articles);
+			break;
+		case "검색":
+			search_word(articles);
+			break;
+		default:
+			System.out.println("올바른 명령어를 입력하세요.");
+		}
+	}
+
+	private void index(ArrayList<Article> articles) {
 		if (articles.isEmpty()) {
 			System.out.println("존재하는 게시글이 없습니다");
 		} else {
@@ -16,13 +57,11 @@ public class Controller {
 				Article item = articles.get(i);
 				System.out.printf(" %-5d| %-6.6s |  %-4d  | %8s\n", item.getId(), item.getTitle(), item.getViewcount(),
 						item.getDate());
-				// 여기서 -는 좌측정렬 -없으면 우측정렬. 다음 숫자는 최소 할당칸. 소수점 숫자는 출력될 값의 길이 제한
 			}
 		}
 	}
 
-	public void write(Scanner sc, ArrayList<Article> articles, int lastArticleId, LocalDate currentDate,
-			int viewcount) {
+	private void write(ArrayList<Article> articles, LocalDate currentDate, int viewcount) {
 		System.out.print("제목 : ");
 		String title = sc.nextLine().trim();
 		System.out.print("내용 : ");
@@ -33,9 +72,10 @@ public class Controller {
 		articles.add(article);
 		System.out.println(lastArticleId + "번 글이 생성되었습니다");
 		lastArticleId++;
+		setLastArticleId(lastArticleId);
 	}
 
-	public void search_num(Scanner sc, ArrayList<Article> articles) {
+	private void search_num(ArrayList<Article> articles) {
 		System.out.print("조회할 게시글의 번호 : ");
 		String idStr = sc.nextLine().trim();
 		try {
@@ -61,15 +101,14 @@ public class Controller {
 		}
 	}
 
-	public void search_word(Scanner sc, ArrayList<Article> articles) {
+	private void search_word(ArrayList<Article> articles) {
 		System.out.print("검색할 게시글의 키워드를 입력하세요 : ");
 		String word = sc.nextLine().trim();
 		boolean found = false;
 
 		System.out.println(" 번호 |  제목  | 조회수 | 등록일자   ");
 
-		for (int i = articles.size() - 1; i >= 0; i--) {
-			Article item = articles.get(i); // 한 객체씩 Article클래스의 item이란 객체에 담는다
+		for (Article item : articles) {
 			if (item.getTitle().contains(word)) {
 				found = true;
 				System.out.printf(" %-5d| %-6.6s |  %-4d  | %8s\n", item.getId(), item.getTitle(), item.getViewcount(),
@@ -81,7 +120,7 @@ public class Controller {
 		}
 	}
 
-	public void change(Scanner sc, ArrayList<Article> articles, LocalDate currentDate) {
+	private void change(ArrayList<Article> articles, LocalDate currentDate) {
 		System.out.print("수정할 게시글의 번호를 입력하세요: ");
 		String idStr = sc.nextLine().trim();
 		try {
@@ -107,7 +146,7 @@ public class Controller {
 		}
 	}
 
-	public void delete(Scanner sc, ArrayList<Article> articles) {
+	private void delete(ArrayList<Article> articles) {
 		System.out.print("삭제할 게시글의 번호를 입력하세요: ");
 		String idStr = sc.nextLine().trim();
 		try {

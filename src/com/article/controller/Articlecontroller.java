@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
 
-public class Controller {
+public class Articlecontroller {
+	int viewcount = 0;
 
 	private Scanner sc;
 	private int lastArticleId;
 
-	public Controller(Scanner sc, int lastArticleId) {
+	public Articlecontroller(Scanner sc, int lastArticleId) {
 		this.sc = new Scanner(System.in);
 		this.lastArticleId = lastArticleId;
 	}
@@ -23,13 +24,14 @@ public class Controller {
 		return this.lastArticleId;
 	}
 
-	public void doing(String cmd2, ArrayList<Article> articles, LocalDate currentDate, int viewcount) {
+	public void doing(String cmd2, ArrayList<Article> articles, LocalDate currentDate, String currentUserId2) {
+		testdata(articles, currentDate);
 		switch (cmd2) {
 		case "목록":
 			index(articles);
 			break;
 		case "등록":
-			write(articles, currentDate, viewcount);
+			write(articles, currentDate, viewcount, currentUserId2);
 			break;
 		case "조회":
 			search_num(articles);
@@ -48,6 +50,18 @@ public class Controller {
 		}
 	}
 
+	private void testdata(ArrayList<Article> articles, LocalDate currentDate) {
+		if (articles.size() < 3) {
+			System.out.println("테스트 데이터 생성");
+			for (int i = 1; i < 4; i++) {
+				Article article = new Article(lastArticleId, "제목" + i, "내용" + i, currentDate.toString(), i * 10,
+						"user" + i);
+				articles.add(article);
+				lastArticleId++;
+			}
+		}
+	}
+
 	private void index(ArrayList<Article> articles) {
 		if (articles.isEmpty()) {
 			System.out.println("존재하는 게시글이 없습니다");
@@ -61,14 +75,14 @@ public class Controller {
 		}
 	}
 
-	private void write(ArrayList<Article> articles, LocalDate currentDate, int viewcount) {
+	private void write(ArrayList<Article> articles, LocalDate currentDate, int viewcount, String currentUserId) {
 		System.out.print("제목 : ");
 		String title = sc.nextLine().trim();
 		System.out.print("내용 : ");
 		String body = sc.nextLine().trim();
 		String date = currentDate.toString();
 
-		Article article = new Article(lastArticleId, title, body, date, viewcount);
+		Article article = new Article(lastArticleId, title, body, date, viewcount, currentUserId);
 		articles.add(article);
 		System.out.println(lastArticleId + "번 글이 생성되었습니다");
 		lastArticleId++;
@@ -87,6 +101,7 @@ public class Controller {
 					article.incviewcount();
 					System.out.println("번호: " + article.getId());
 					System.out.println("제목: " + article.getTitle());
+					System.out.println("작성자: " + article.getUserinfo());
 					System.out.println("내용: " + article.getBody());
 					System.out.println("날짜: " + article.getDate());
 					System.out.println("조회수: " + article.getViewcount());

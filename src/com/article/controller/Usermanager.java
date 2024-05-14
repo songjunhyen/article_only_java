@@ -8,31 +8,30 @@ import com.article.dto.Article;
 import com.article.dto.User;
 
 public class Usermanager {
+	private int num = 1;
+	private int lastArticleId = 1;
 	private String currentUserId;
-    private Scanner sc;
-    private ArrayList<User> users;
-	private int num;
-	private int lastArticleId;
-	private Controller controller;
-	
-	public Usermanager(Scanner sc, ArrayList<User> users, int num, int lastArticleId) {
-	    this.sc = sc;
-	    this.users = users;
-	    this.num = num;
-	    this.lastArticleId = lastArticleId;
-	    this.controller = new Controller(sc, lastArticleId);
+	private Scanner sc;
+	private ArrayList<User> users;
+
+	private Articlecontroller controller;
+
+	public Usermanager(Scanner sc, ArrayList<User> users) {
+		this.sc = sc;
+		this.users = users;
+		this.controller = new Articlecontroller(sc, lastArticleId);
 	}
-	
-    public void setCurrentUserId(String userId) {
-        this.currentUserId = userId;
-    }
 
-    public String getCurrentUserId() {
-        return this.currentUserId;
-    }
-    
+	public void setCurrentUserId(String userId) {
+		this.currentUserId = userId;
+	}
 
-    public void doing(String cmd, ArrayList<Article> articles, LocalDate currentDate, int viewcount, int lastArticleId2) {
+	public String getCurrentUserId() {
+		return this.currentUserId;
+	}
+
+	public void doing(String cmd, ArrayList<Article> articles, LocalDate currentDate) {
+
 		if (cmd.equals("1") || cmd.equals("로그인")) {
 			signin(sc, users);
 			while (true) {
@@ -40,7 +39,7 @@ public class Usermanager {
 				System.out.print("명령어) ");
 				String cmd2 = sc.nextLine().trim();
 				try {
-					 if (!signcheck()) { // 로그인 확인
+					if (!signcheck()) { // 로그인 확인
 						break; // 로그인이 안되어있으면 다시 로그인 화면으로 돌아감
 					} else if (cmd2.equals("정보수정")) {
 						updateuser(sc, users);
@@ -52,7 +51,7 @@ public class Usermanager {
 						signout();
 						break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
 					} else {
-						controller.doing(cmd2, articles, currentDate, viewcount);
+						controller.doing(cmd2, articles, currentDate, currentUserId);
 					}
 				} catch (Exception e) {
 					System.out.println("오류가 발생하였습니다: " + e.getMessage());
@@ -63,9 +62,8 @@ public class Usermanager {
 		} else if (cmd.equals("3") || cmd.equals("종료")) {
 			System.out.println("프로그램을 종료합니다.");
 			System.exit(0);
-		}	
+		}
 	}
-    
 
 	private void signin(Scanner sc, ArrayList<User> users) {
 		System.out.print("아이디 : ");
@@ -76,7 +74,7 @@ public class Usermanager {
 		for (User user : users) {
 			if (user.getId().equals(id) && user.getPassword().equals(password)) {
 				check = true;
-				setCurrentUserId(id); // 로그인 성공시 현재 유저 아이디 설정
+				setCurrentUserId(user.getName() + '(' + id + ')'); // 로그인 성공시 현재 유저 아이디 설정
 				break;
 			}
 		}
@@ -119,7 +117,6 @@ public class Usermanager {
 			break; // 아이디가 중복되지 않은 경우에만 회원가입 진행
 		}
 	}
-
 
 	private void updateuser(Scanner sc, ArrayList<User> users) {
 		signcheck();
@@ -218,5 +215,4 @@ public class Usermanager {
 		}
 		return true;
 	}
-
 }

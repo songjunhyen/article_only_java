@@ -6,15 +6,13 @@ public class Article {
 	private String body;
 	private String date;
 	private int viewcount;
-	private String userinfo;
 
-	public Article(int id, String title, String body, String date, int viewcount, String userinfo) {
+	public Article(int id,String date, String title, String body, int viewcount) {
 		this.id = id;
 		this.title = title;
+		this.date =date;
 		this.body = body;
-		this.date = date;
 		this.viewcount = viewcount;
-		this.userinfo = userinfo;
 	}
 
 	// 게터 메서드
@@ -38,9 +36,6 @@ public class Article {
 		return viewcount;
 	}
 
-	public String getUserinfo() {
-		return userinfo;
-	}
 
 	// 세터 메서드
 	public void setId(int id) {
@@ -63,9 +58,6 @@ public class Article {
 		this.viewcount = viewcount;
 	}
 
-	public void setUserinfo(String userinfo) {
-		this.userinfo = userinfo;
-	}
 
 	public void incviewcount() {
 		viewcount++;

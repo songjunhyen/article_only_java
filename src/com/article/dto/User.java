@@ -5,13 +5,14 @@ public class User {
 	private String password;
 	private int num;
 	private String name;
+	private String dateStr;
 
-	public User(String id, String password, int num, String name) {
-
-		this.id = id;
-		this.password = password;
-		this.num = num;
-		this.name = name;
+	public User(int num, String dateStr, String id, String password,  String name) {
+	    this.id = id;
+	    this.password = password;
+	    this.num = num;
+	    this.name = name;
+	    this.setDateStr(dateStr);
 	}
 
 	// 게터 메서드
@@ -31,6 +32,8 @@ public class User {
 		return name;
 	}
 
+
+
 	// 세터 메서드
 	public void setId(String id) {
 		this.id = id;
@@ -47,4 +50,15 @@ public class User {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public String getDateStr() {
+		return dateStr;
+	}
+
+	public void setDateStr(String dateStr) {
+		this.dateStr = dateStr;
+	}
+
+
+
 }

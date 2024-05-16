@@ -1,68 +1,53 @@
 package com.article.controller;
 
+import com.article.container.Container;
 import com.article.dto.Article;
-import java.util.ArrayList;
+import com.article.dto.User;
+import com.article.service.ArticleService;
+
+import java.util.List;
 import java.util.Scanner;
-import java.time.LocalDate;
 
-public class Articlecontroller {
-	int viewcount = 0;
+public class Articlecontroller extends Controller {
 
-	private Scanner sc;
-	private int lastArticleId;
+	private List<Article> articles;
+	private List<User> users;
+	private ArticleService articleService;
 
-	public Articlecontroller(Scanner sc, int lastArticleId) {
-		this.sc = new Scanner(System.in);
-		this.lastArticleId = lastArticleId;
+	public Articlecontroller(Scanner sc) {
+		this.sc = sc;
+		this.articles = Container.articles;
+		this.users = Container.users;
+		this.articleService = new ArticleService();
 	}
 
-	public void setLastArticleId(int lastArticleId) {
-		this.lastArticleId = lastArticleId;
-	}
-
-	public int getLastArticleId() {
-		return this.lastArticleId;
-	}
-
-	public void doing(String cmd2, ArrayList<Article> articles, LocalDate currentDate, String currentUserId2) {
-		testdata(articles, currentDate);
-		switch (cmd2) {
+	public void doing(String cmd) {
+		makeTestData(); 
+		switch (cmd) {
 		case "목록":
-			index(articles);
+			index();
 			break;
 		case "등록":
-			write(articles, currentDate, viewcount, currentUserId2);
+			write();
 			break;
 		case "조회":
-			search_num(articles);
+			search_num();
 			break;
 		case "수정":
-			change(articles, currentDate);
+			change();
 			break;
 		case "삭제":
-			delete(articles);
+			delete();
 			break;
 		case "검색":
-			search_word(articles);
+			search_word();
 			break;
 		default:
 			System.out.println("올바른 명령어를 입력하세요.");
 		}
 	}
 
-	private void testdata(ArrayList<Article> articles, LocalDate currentDate) {
-		if (articles.size() < 3) {
-			System.out.println("테스트 데이터 생성");
-			for (int i = 1; i < 4; i++) {
-				Article article = new Article(lastArticleId, "제목" + i, "내용" + i, currentDate.toString(), i * 10,
-						"user" + i);
-				articles.add(article);
-				lastArticleId++;
-			}
-		}
-	}
-
-	private void index(ArrayList<Article> articles) {
+	private void index() {
 		if (articles.isEmpty()) {
 			System.out.println("존재하는 게시글이 없습니다");
 		} else {
@@ -75,48 +60,60 @@ public class Articlecontroller {
 		}
 	}
 
-	private void write(ArrayList<Article> articles, LocalDate currentDate, int viewcount, String currentUserId) {
+	private void write() {
 		System.out.print("제목 : ");
 		String title = sc.nextLine().trim();
 		System.out.print("내용 : ");
 		String body = sc.nextLine().trim();
-		String date = currentDate.toString();
 
-		Article article = new Article(lastArticleId, title, body, date, viewcount, currentUserId);
-		articles.add(article);
-		System.out.println(lastArticleId + "번 글이 생성되었습니다");
-		lastArticleId++;
-		setLastArticleId(lastArticleId);
+		int articleNumber = articleService.writeArticle(1, title, body, 0);
+
+		System.out.println(articleNumber + "번 글이 생성되었습니다");
 	}
 
-	private void search_num(ArrayList<Article> articles) {
-		System.out.print("조회할 게시글의 번호 : ");
+	private void change() {
+		System.out.print("수정할 게시글의 번호를 입력하세요: ");
 		String idStr = sc.nextLine().trim();
-		try {
-			int id = Integer.parseInt(idStr);
-			boolean found = false;
-			for (Article article : articles) {
-				if (article.getId() == id) {
-					found = true;
-					article.incviewcount();
-					System.out.println("번호: " + article.getId());
-					System.out.println("제목: " + article.getTitle());
-					System.out.println("작성자: " + article.getUserinfo());
-					System.out.println("내용: " + article.getBody());
-					System.out.println("날짜: " + article.getDate());
-					System.out.println("조회수: " + article.getViewcount());
-					break;
-				}
-			}
-			if (!found) {
-				System.out.println("해당 번호의 게시글이 없습니다.");
-			}
-		} catch (NumberFormatException e) {
-			System.out.println("올바른 번호를 입력하세요.");
+		int id = Integer.parseInt(idStr);
+
+		Article foundArticle = getArticleById(id);
+		User foundUser = getUserByLoginId(getLoginIdByUserId(foundArticle.getId()), users); // 여기서 getUserByLoginId()를
+																							// 호출
+
+		if (foundUser != null && foundUser.getId() == loginedUser.getId()) {
+			System.out.print("수정할 제목: ");
+			String title = sc.nextLine().trim();
+			System.out.print("수정할 내용: ");
+			String body = sc.nextLine().trim();
+
+			articleService.changeArticle(id, title, body);
+
+			System.out.println(id + "번 게시글이 수정되었습니다.");
+		} else {
+			System.out.println("해당 게시물에 대한 권한이 없습니다");
 		}
 	}
 
-	private void search_word(ArrayList<Article> articles) {
+	private void search_num() {
+		System.out.print("조회할 게시글의 번호 : ");
+		String idstr = sc.nextLine().trim();
+		int id = Integer.parseInt(idstr);
+		Article foundArticle = getArticleById(id);
+		if (foundArticle == null) {
+			System.out.println(id + "번 게시물이 존재하지 않습니다");
+			return;
+		}
+
+		foundArticle.incviewcount();
+
+		System.out.println("번호: " + foundArticle.getId());
+		System.out.println("제목: " + foundArticle.getTitle());
+		System.out.println("내용: " + foundArticle.getBody());
+		System.out.println("날짜: " + foundArticle.getDate());
+		System.out.println("조회수: " + foundArticle.getViewcount());
+	}
+
+	private void search_word() {
 		System.out.print("검색할 게시글의 키워드를 입력하세요 : ");
 		String word = sc.nextLine().trim();
 		boolean found = false;
@@ -135,51 +132,61 @@ public class Articlecontroller {
 		}
 	}
 
-	private void change(ArrayList<Article> articles, LocalDate currentDate) {
-		System.out.print("수정할 게시글의 번호를 입력하세요: ");
-		String idStr = sc.nextLine().trim();
-		try {
-			int id = Integer.parseInt(idStr);
-			boolean found = false;
-			for (Article article : articles) {
-				if (article.getId() == id) {
-					found = true;
-					System.out.print("수정할 제목: ");
-					article.setTitle(sc.nextLine().trim());
-					System.out.print("수정할 내용: ");
-					article.setBody(sc.nextLine().trim());
-					article.setDate(currentDate.toString());
-					System.out.println(id + "번 게시글이 수정되었습니다.");
-					break;
-				}
-			}
-			if (!found) {
-				System.out.println("해당 번호의 게시글이 없습니다.");
-			}
-		} catch (NumberFormatException e) {
-			System.out.println("올바른 번호를 입력하세요.");
+	private void delete() {
+		System.out.println("삭제할 게시글의 게시글의 번호를 입려해주세요.");
+		String idstr = sc.nextLine().trim();
+		int id = Integer.parseInt(idstr);
+
+		if (id == 0) {
+			System.out.println("명령어가 올바르지 않습니다");
+			return;
 		}
+
+		Article foundArticle = getArticleById(id);
+
+		if (foundArticle == null) {
+			System.out.println(id + "번 게시물이 존재하지 않습니다");
+			return;
+		}
+
+		if (foundArticle.getId() != loginedUser.getNum()) {
+			System.out.println("해당 게시물에 대한 권한이 없습니다");
+			return;
+		}
+
+		articles.remove(foundArticle);
+
+		System.out.println(id + "번 게시물이 삭제되었습니다");
 	}
 
-	private void delete(ArrayList<Article> articles) {
-		System.out.print("삭제할 게시글의 번호를 입력하세요: ");
-		String idStr = sc.nextLine().trim();
-		try {
-			int id = Integer.parseInt(idStr);
-			boolean found = false;
-			for (Article article : articles) {
-				if (article.getId() == id) {
-					found = true;
-					articles.remove(article);
-					System.out.println(id + "번 게시글이 삭제되었습니다.");
-					break;
-				}
+	private String getLoginIdByUserId(int id) {
+		for (User user : users) {
+			String strid = String.valueOf(id);
+			if (strid == user.getId()) {
+				return user.getId();
 			}
-			if (!found) {
-				System.out.println("해당 번호의 게시글이 없습니다.");
+		}
+		return null;
+	}
+
+	private Article getArticleById(int id) {
+		for (Article article : articles) {
+			if (article.getId() == id) {
+				return article;
 			}
-		} catch (NumberFormatException e) {
-			System.out.println("올바른 번호를 입력하세요.");
+		}
+
+		return null;
+	}
+
+	@Override
+	public void makeTestData() {
+		if (articles.size() <= 3) {
+			System.out.println("테스트데이터를 생성했습니다");
+
+			for (int i = 1; i <= 3; i++) {
+				articleService.writeArticle((int) (Math.random() * 3) + 1, "제목" + i, "내용" + i, i * 10);
+			}
 		}
 	}
 }

@@ -1,25 +1,13 @@
 package com.article;
 
 import com.article.controller.Usermanager;
-import com.article.dto.Article;
-import com.article.dto.User;
 import java.util.Scanner;
-import java.time.*;
-import java.util.ArrayList;
 
 public class App {
-
 	void Run() {
-
 		System.out.println("== 프로그램 시작 ==");
-
 		Scanner sc = new Scanner(System.in);
-		LocalDate currentDate = LocalDate.now();
-
-		ArrayList<Article> articles = new ArrayList<>();
-		ArrayList<User> users = new ArrayList<>();
-
-		Usermanager usermanager = new Usermanager(sc, users);
+		Usermanager usermanager = new Usermanager(sc);
 
 		while (true) {
 			System.out.println("1. 로그인");
@@ -29,7 +17,7 @@ public class App {
 			String cmd = sc.nextLine().trim();
 
 			try {
-				usermanager.doing(cmd, articles, currentDate);
+				usermanager.doing(cmd);
 			} catch (Exception e) {
 				System.out.println("오류가 발생하였습니다: " + e.getMessage());
 			}

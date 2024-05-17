@@ -24,32 +24,33 @@ public class Usermanager extends Controller {
 		switch (cmd) {
 		case "1":
 		case "로그인":
-			signin();
-			while (true) {
-				System.out.println("명령어 목록 :\n 등록, 목록, 조회, 검색, 수정, 삭제 \n 정보수정, 탈퇴, 로그아웃 ");
-				System.out.print("명령어) ");
-				String cmd2 = sc.nextLine().trim();
-				try {
-					switch (cmd2) {
-					case "정보수정":
-						updateuser();
-						break;
-					case "탈퇴":
-						deleteuser();
-						signout();
-						break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
-					case "로그아웃":
-						signout();
-						break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
-					default:
-						Articlecontroller articleController = new Articlecontroller(sc);
-						articleController.doing(cmd2);
+			if (signin()) {
+				while (true) {
+					System.out.println("명령어 목록 :\n 등록, 목록, 조회, 검색, 수정, 삭제 \n 정보수정, 탈퇴, 로그아웃 ");
+					System.out.print("명령어) ");
+					String cmd2 = sc.nextLine().trim();
+					try {
+						switch (cmd2) {
+						case "정보수정":
+							updateuser();
+							break;
+						case "탈퇴":
+							deleteuser();
+							signout();
+							break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
+						case "로그아웃":
+							signout();
+							break; // 로그아웃 또는 탈퇴한 경우 while 루프를 종료함
+						default:
+							Articlecontroller articleController = new Articlecontroller(sc);
+							articleController.doing(cmd2);
+						}
+					} catch (Exception e) {
+						System.out.println("오류가 발생하였습니다: " + e.getMessage());
 					}
-				} catch (Exception e) {
-					System.out.println("오류가 발생하였습니다: " + e.getMessage());
-				}
-				if (cmd2.equals("로그아웃") || cmd2.equals("탈퇴")) {
-					break; // 로그아웃 또는 탈퇴 시 while 루프 종료
+					if (cmd2.equals("로그아웃") || cmd2.equals("탈퇴")) {
+						break; // 로그아웃 또는 탈퇴 시 while 루프 종료
+					}
 				}
 			}
 			break; // 로그인 후에 명령어 처리를 마치고 외부 switch 문으로 돌아감
@@ -68,7 +69,7 @@ public class Usermanager extends Controller {
 		}
 	}
 
-	private void signin() {
+	private boolean signin() {
 		System.out.print("아이디 : ");
 		String id = sc.nextLine().trim();
 		System.out.print("비밀번호 : ");
@@ -77,17 +78,17 @@ public class Usermanager extends Controller {
 
 		if (foundUser == null) {
 			System.out.println("존재하지 않는 아이디 입니다");
-			return;
+			return false;
 		}
 
 		if (!foundUser.getPassword().equals(password)) {
 			System.out.println("비밀번호를 확인해주세요");
-			return;
+			return false;
 		}
 
 		loginedUser = foundUser;
-
 		System.out.println("로그인 성공!");
+		return true;
 	}
 
 	private void signup() {
@@ -149,21 +150,28 @@ public class Usermanager extends Controller {
 	}
 
 	private void updateuser() {
-
+		System.out.print("새 이름: ");
+		String name = sc.nextLine().trim();
+		System.out.print("새 비밀번호: ");
+		String password = sc.nextLine().trim();
+		String id = loginedUser.getId();
+		userService.updateUser(id, name, password);
 	}
 
 	private void deleteuser() {
-
+		String id = loginedUser.getId();
+        userService.deleteUser(id);
 	}
 
 	private void signout() {
 		loginedUser = null;
 		System.out.println("로그아웃!");
 	}
+	
 
 	@Override
 	public void makeTestData() {
-		if (users.size() <= 3) {
+		if (users.size() < 3) {
 			System.out.println("테스트용 회원 데이터를 생성했습니다");
 
 			for (int i = 1; i <= 3; i++) {

@@ -17,4 +17,11 @@ public class UserService {
 		userDao.joinUser(loginId, loginPw, name);
 	}
 
+	public void updateUser(String id,String name,String password) {
+		userDao.updateUser(id, name, password);
+	}
+
+	public void deleteUser(String id) {
+		userDao.deleteUser(id);
+	}
 }

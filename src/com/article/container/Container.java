@@ -9,7 +9,7 @@ import com.article.dto.User;
 public class Container {
 	public static List<User> users;
 	public static List<Article> articles;
-	
+
 	static {
 		users = new ArrayList<>();
 		articles = new ArrayList<>();

@@ -1,23 +1,25 @@
 package com.article.dto;
 
 public class Article {
-	private int id;
+	private int num;
 	private String title;
 	private String body;
 	private String date;
+	private String id;
 	private int viewcount;
 
-	public Article(int id,String date, String title, String body, int viewcount) {
-		this.id = id;
+	public Article(int num, String id, String date, String title, String body, int viewcount) {
+		this.num = num;
 		this.title = title;
-		this.date =date;
+		this.date = date;
 		this.body = body;
+		this.setId(id);
 		this.viewcount = viewcount;
 	}
 
 	// 게터 메서드
-	public int getId() {
-		return id;
+	public int getNum() {
+		return num;
 	}
 
 	public String getTitle() {
@@ -36,10 +38,13 @@ public class Article {
 		return viewcount;
 	}
 
+	public String getId() {
+		return id;
+	}
 
 	// 세터 메서드
-	public void setId(int id) {
-		this.id = id;
+	public void setNum(int id) {
+		this.num = num;
 	}
 
 	public void setTitle(String title) {
@@ -58,9 +63,12 @@ public class Article {
 		this.viewcount = viewcount;
 	}
 
-
 	public void incviewcount() {
 		viewcount++;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 }

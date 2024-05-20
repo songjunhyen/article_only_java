@@ -70,7 +70,7 @@ public class Articlecontroller extends Controller {
 		System.out.print("내용 : ");
 		String body = sc.nextLine().trim();
 
-		String id = loginedUser.getName() + "(" + getLoggedInUserId() + ")";
+		String id = getLoggedInUserId();
 
 		articleService.writeArticle(1, id, title, body, 0);
 

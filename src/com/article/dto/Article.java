@@ -13,7 +13,7 @@ public class Article {
 		this.title = title;
 		this.date = date;
 		this.body = body;
-		this.setId(id);
+		this.id= id;
 		this.viewcount = viewcount;
 	}
 
@@ -43,7 +43,7 @@ public class Article {
 	}
 
 	// 세터 메서드
-	public void setNum(int id) {
+	public void setNum(int num) {
 		this.num = num;
 	}
 
